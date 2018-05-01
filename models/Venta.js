@@ -7,6 +7,10 @@ const VentaSchema = new mongoose.Schema({
     importe: {
         type: Number,
         required: true
+    },
+    detalle: {
+        type: Array,
+        required: true
     }
 });
 

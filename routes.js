@@ -89,120 +89,11 @@ router.put("/productos", function(req, res, next){
     }
 });
 
-// -------------- USUARIOS ----------------------
-// GET /api/usuarios
-router.get("/usuarios", function(req, res, next){
-	Usuario.find(function (err, docs) {
-        if (err) {
-            return next(err);
-        }
-        return res.json(docs);
-    });
-});
-
-// POST /api/usuarios
-router.post("/usuarios", function(req, res, next){
-    const { username, password, rol, isActive } = req.body;
-    if (username && password && rol) {
-        const usuarioData = { username, password, rol, isActive }
-        Usuario.create(usuarioData, (err, usuario) => {
-            if (err) {
-                return next(err);
-            }
-            console.log(`${usuario._id} added.`);
-            return res.end(`${usuario._id} added.`);
-        })
-    }
-});
-
-// DELETE /api/usuarios/
-router.delete("/usuarios", function(req, res, next){
-    const { _id } = req.body;
-    if (_id) {
-        Usuario.deleteOne({ _id }, (err) => { 
-            if (err) {
-                return next(err);
-            }
-            console.log(`${_id} deleted.`);
-            return res.end(`${_id} deleted.`);
-        })
-    }
-});
-
-// PUT /api/usuarios/
-router.put("/usuarios", function(req, res, next){
-    const { _id, username, password, rol, isActive } = req.body;
-    if (_id && username && password && rol) {
-        const usuarioData = { username, password, rol, isActive };
-        Usuario.findByIdAndUpdate({ _id }, usuarioData, (err) => {
-            if (err) {
-                return next(err);
-            }
-            console.log(`${_id} updated.`);
-            return res.end(`${_id} updated.`);
-        })
-    }
-});
-
-// -------------- SETTINGS ----------------------
-// GET /api/settings
-router.get("/settings", function(req, res, next){
-	Settings.find(function (err, docs) {
-        if (err) {
-            return next(err);
-        }
-        return res.json(docs);
-    });
-});
-
-// POST /api/settings
-router.post("/settings", function(req, res, next){
-    const { nombre, mesas } = req.body;
-    if (nombre && mesas) {
-        const settingsData = { nombre, mesas }
-        Settings.create(settingsData, (err, settings) => {
-            if (err) {
-                return next(err);
-            }
-            console.log(`${settings._id} added.`);
-            return res.end(`${settings._id} added.`);
-        })
-    }
-});
-
-// DELETE /api/settings/
-router.delete("/settings", function(req, res, next){
-    const { _id } = req.body;
-    if (_id) {
-        Settings.deleteOne({ _id }, (err) => { 
-            if (err) {
-                return next(err);
-            }
-            console.log(`${_id} deleted.`);
-            return res.end(`${_id} deleted.`);
-        })
-    }
-});
-
-// PUT /api/settings/
-router.put("/settings", function(req, res, next){
-    const { _id, nombre, mesas } = req.body;
-    if (_id && nombre && mesas) {
-        const settingsData = { nombre, mesas };
-        Settings.findByIdAndUpdate({ _id }, settingsData, (err) => {
-            if (err) {
-                return next(err);
-            }
-            console.log(`${_id} updated.`);
-            return res.end(`${_id} updated.`);
-        })
-    }
-});
-
 // -------------- VENTAS ----------------------
 // GET /api/ventas
-router.get("/ventas", function(req, res, next){
-	Venta.find(function (err, docs) {
+router.get("/ventas", function(req, res, next) {
+    const { startDate, endDate } = JSON.parse(req.query.dates);
+	Venta.find({fecha: {$lte: endDate, $gte: startDate }}, function (err, docs) {
         if (err) {
             return next(err);
         }
@@ -212,14 +103,13 @@ router.get("/ventas", function(req, res, next){
 
 // POST /api/ventas
 router.post("/ventas", function(req, res, next){
-    const { fecha, importe } = req.body;
-    if (fecha && importe) {
-        const ventaData = { fecha, importe }
+    const { fecha, importe, detalle } = req.body;
+    if (fecha && importe && detalle) {
+        const ventaData = { fecha, importe, detalle }
         Venta.create(ventaData, (err, venta) => {
             if (err) {
                 return next(err);
             }
-            console.log(`${venta._id} added.`);
             return res.end(`${venta._id} added.`);
         })
     }
