@@ -26,7 +26,6 @@ router.post("/productos", function(req, res, next){
             if (err) {
                 return next(err);
             }
-            console.log(`${producto._id} added.`);
             Producto.find(function (err, docs) {
                 if (err) {
                     return next(err);
@@ -37,7 +36,7 @@ router.post("/productos", function(req, res, next){
     }
 });
 
-// DELETE /api/productos/:id
+// DELETE /api/productos/
 router.delete("/productos", function(req, res, next){
     const { _id } = req.body;
     if (_id) {
@@ -45,7 +44,6 @@ router.delete("/productos", function(req, res, next){
             if (err) {
                 return next(err);
             }
-            console.log(`${_id} deleted.`);
             return res.end(`${_id} deleted.`);
         })
     }
@@ -93,7 +91,7 @@ router.put("/productos", function(req, res, next){
 // GET /api/ventas
 router.get("/ventas", function(req, res, next) {
     const { startDate, endDate } = JSON.parse(req.query.dates);
-	Venta.find({fecha: {$lte: endDate, $gte: startDate }}, function (err, docs) {
+	Venta.find({ fecha: { $lte: endDate, $gte: startDate } }, function (err, docs) {
         if (err) {
             return next(err);
         }
@@ -123,7 +121,6 @@ router.delete("/ventas", function(req, res, next){
             if (err) {
                 return next(err);
             }
-            console.log(`${_id} deleted.`);
             return res.end(`${_id} deleted.`);
         })
     }
@@ -138,9 +135,43 @@ router.put("/ventas", function(req, res, next){
             if (err) {
                 return next(err);
             }
-            console.log(`${_id} updated.`);
             return res.end(`${_id} updated.`);
         })
     }
 });
+
+router.get("/report/mes", function(req, res, next) {
+    const { month, year } = req.query;
+    //console.log(month, year);
+
+    Venta.find({}, { _id: false, detalle: true }, (err, docs) => {
+        if (err) return next(err);
+        //console.log(docs);
+    });
+
+    Venta.aggregate([{
+        $project: { 
+            detalle: { 
+                $slice: [ '$detalle', 100
+                    //input: '$detalle',
+                    //as: 'detalle1',
+                    //in: {
+                    //    $isArray: [ '$$detalle1.mesa' ]
+                        /*$map: {
+                            input: '$venta',
+                            as: 'detalle_venta',
+                            in: { $add: [ '$$detalle_venta.cantidad', 2 ] }
+                        }*/
+                    //}
+                ] 
+            },
+            _id: 0 
+        } 
+    }], (err, result) => {
+        if (err) return next(err);
+        console.log(result);
+    });
+    res.end();
+});
+
 module.exports = router;
